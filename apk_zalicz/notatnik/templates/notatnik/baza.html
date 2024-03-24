@@ -1,0 +1,83 @@
+{% extends 'notatnik/main.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row mt-5">
+            <div class="col-md-6 offset-md-3">
+                <h2>Wybierz przedmiot:</h2>
+                <form>
+                    <div class="form-group">
+                        <select class="form-control" id="subject">
+                            <option value="" selected disabled>Wybierz przedmiot</option>
+                            {% for przedmiot in przedmioty %}
+                            <option value="{{ przedmiot.id }}" >{{ przedmiot.nazwa }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6 offset-md-3">
+                <h2>Twoje notatki</h2>
+                <ul class="list-group" id="notes-list">
+                    {% for notatka in notatki %}    
+                        <li class="list-group-item" data-przedmiot="{{ notatka.przedmiot.id }}">{{ notatka.przedmiot.nazwa }}: {{ notatka.tytul }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        document.getElementById('subject').addEventListener('change', function() {
+            var selectedSubjectId = this.value;
+            var notesList = document.getElementById('notes-list');
+            var notes = notesList.getElementsByClassName('list-group-item');
+            var firstNote = true;
+    
+            for (var i = 0; i < notes.length; i++) {
+                var note = notes[i];
+                var notePrzedmiotId = note.getAttribute('data-przedmiot');
+    
+                if (selectedSubjectId === 'all' || selectedSubjectId === notePrzedmiotId) {
+                    note.style.display = 'block';
+                    if (firstNote){
+                        note.style.borderTop = '1px solid lightgrey';
+                        note.style.borderRadius = '5px 5px 0 0';
+                        firstNote = false;
+                    }
+                } else {
+                    note.style.display = 'none';
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var listItems = document.querySelectorAll('.list-group-item');
+            listItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    // Przełączamy klasę `full-text` na klikniętym elemencie
+                    this.classList.toggle('full-text');
+                });
+            });
+        });
+    </script>
+
+<style>
+    .list-group-item {
+        white-space: nowrap; /* Zapobiega przewijaniu tekstu do nowej linii */
+        overflow: hidden; /* Ukrywa nadmiarowy tekst */
+        text-overflow: ellipsis; /* Dodaje "..." na końcu obciętego tekstu */
+        cursor: pointer; /* Dodaje kursor wskazujący, aby pokazać, że element jest interaktywny */
+    }
+
+    .list-group-item.full-text {
+        white-space: normal; /* Pozwala na wyświetlenie pełnej zawartości tekstu */
+        overflow: auto; /* Dodaje paski przewijania, jeśli tekst jest zbyt długi, aby zmieścić się na ekranie */
+        text-overflow: unset; /* Resetuje stylowanie dla dłuższego tekstu */
+        cursor: auto; /* Resetuje kursor na standardowy */
+    }
+</style>
+
+{% endblock content %}

@@ -1,0 +1,57 @@
+{% extends 'notatnik/main.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h2>Dodaj notatkę:</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="przedmiot">Przedmiot:</label>
+                    <select class="form-control" id="przedmiot" name="przedmiot">
+                        <option value="" selected disabled>Wybierz przedmiot</option>
+                        {% for przedmiot in przedmioty %}
+                        <option value="{{ przedmiot.id }}">{{ przedmiot.nazwa }}</option>
+                        {% endfor %}
+                        <option value="nowy_przedmiot">Dodaj nowy przedmiot...</option>
+                    </select>
+                </div>
+                <div id="nowy_przedmiot_div" class="form-group" style="display: none;">
+                    <label for="new-subject">Nowy przedmiot:</label>
+                    <input type="text" class="form-control" id="new-subject" name="new-subject" placeholder="Wprowadź nazwę nowego przedmiotu">
+                    <button style="margin-top: 15px;" type="submit" class="btn btn-primary" name="action" value="nowy_przedmiot">Dodaj nowy przedmiot</button>
+                </div>
+                <div class="form-group">
+                    <label for="tytul">Tytuł lekcji:</label>
+                    <input type="text" class="form-control" id="tytul" name="tytul" placeholder="Wprowadź tytuł lekcji">
+                </div>
+                <div class="form-group">
+                    <label for="tresc">Treść notatki:</label>
+                    <textarea class="form-control" id="tresc" name="tresc" rows="5" placeholder="Wprowadź treść notatki"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" name="action" value="zapisz_notatke">Zapisz notatkę</button>
+            </form>            
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("przedmiot").addEventListener("change", function() {
+    var selectedOption = this.value;
+    var newSubjectDiv = document.getElementById("nowy_przedmiot_div");
+    if (selectedOption === "nowy_przedmiot") {
+        newSubjectDiv.style.display = "block";
+        document.getElementById("tytul").disabled = true;
+        document.getElementById("tresc").disabled = true;
+        document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = true;
+    } else {
+        newSubjectDiv.style.display = "none";
+        document.getElementById("tytul").disabled = false;
+        document.getElementById("tresc").disabled = false;
+        document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = false;
+    }
+});
+</script>
+
+{% endblock content %}
