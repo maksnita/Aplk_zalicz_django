@@ -24,6 +24,7 @@
             <a class="nav-link" href="{% url 'baza' %}">Twoje notatki</a>
           </li>
         </ul>
+        <span id="clock" class="ml-auto mr-4" style="font-size: 18px;"></span>
       </div>
     </nav>
   
@@ -41,5 +42,31 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      function updateClockAndDate() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            var day = now.getDate();
+            var month = now.getMonth() + 1; // dodajemy 1, ponieważ styczeń zwraca 0
+            var year = now.getFullYear();
+
+            // Formatowanie czasu do postaci HH:MM:SS
+            var timeString = ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
+            
+            // Formatowanie daty do postaci DD.MM.RRRR
+            var dateString = ('0' + day).slice(-2) + '.' + ('0' + month).slice(-2) + '.' + year;
+
+            // Aktualizacja treści elementów zegara i daty
+            document.getElementById('clock').textContent = dateString + " | " + timeString;
+        }
+
+        // Uruchomienie funkcji updateClockAndDate co sekundę
+        setInterval(updateClockAndDate, 1000);
+
+        // Uruchomienie updateClockAndDate przy załadowaniu strony
+        updateClockAndDate();
+  </script>
   </body>
   </html>

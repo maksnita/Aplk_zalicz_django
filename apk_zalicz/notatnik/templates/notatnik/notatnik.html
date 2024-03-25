@@ -9,26 +9,38 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="przedmiot">Przedmiot:</label>
-                    <select class="form-control" id="przedmiot" name="przedmiot">
+                    <select class="form-control" id="przedmiot" name="przedmiot" required>
                         <option value="" selected disabled>Wybierz przedmiot</option>
                         {% for przedmiot in przedmioty %}
                         <option value="{{ przedmiot.id }}">{{ przedmiot.nazwa }}</option>
                         {% endfor %}
                         <option value="nowy_przedmiot">Dodaj nowy przedmiot...</option>
+                        <option value="usun_przedmiot">Usuń przedmiot...</option>
                     </select>
                 </div>
+                
                 <div id="nowy_przedmiot_div" class="form-group" style="display: none;">
                     <label for="new-subject">Nowy przedmiot:</label>
                     <input type="text" class="form-control" id="new-subject" name="new-subject" placeholder="Wprowadź nazwę nowego przedmiotu">
                     <button style="margin-top: 15px;" type="submit" class="btn btn-primary" name="action" value="nowy_przedmiot">Dodaj nowy przedmiot</button>
                 </div>
+                <div id="usun_przedmiot_div" class="form-group" style="display: none;">
+                    <label for="przedmiot_usun">Wybierz przedmiot do usunięcia:</label>
+                    <select class="form-control" id="przedmiot_usun" name="przedmiot_usun">
+                        <option value="" selected disabled>Wybierz przedmiot do usunięcia</option>
+                        {% for przedmiot in przedmioty %}
+                            <option value="{{ przedmiot.id }}">{{ przedmiot.nazwa }}</option>
+                        {% endfor %}
+                    </select>
+                    <button style="margin-top: 15px;" type="submit" class="btn btn-danger" name="action" value="usun_przedmiot">Usuń przedmiot</button>
+                </div>
                 <div class="form-group">
-                    <label for="tytul">Tytuł lekcji:</label>
-                    <input type="text" class="form-control" id="tytul" name="tytul" placeholder="Wprowadź tytuł lekcji">
+                    <label for="tytul">Temat lekcji:</label>
+                    <input type="text" class="form-control" id="tytul" name="tytul" placeholder="Wprowadź temat lekcji" required>
                 </div>
                 <div class="form-group">
                     <label for="tresc">Treść notatki:</label>
-                    <textarea class="form-control" id="tresc" name="tresc" rows="5" placeholder="Wprowadź treść notatki"></textarea>
+                    <textarea style="resize: both;" class="form-control resizable-textarea" id="tresc" name="tresc" rows="10" placeholder="Wprowadź treść notatki" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" name="action" value="zapisz_notatke">Zapisz notatkę</button>
             </form>            
@@ -37,21 +49,39 @@
 </div>
 
 <script>
-document.getElementById("przedmiot").addEventListener("change", function() {
-    var selectedOption = this.value;
-    var newSubjectDiv = document.getElementById("nowy_przedmiot_div");
-    if (selectedOption === "nowy_przedmiot") {
-        newSubjectDiv.style.display = "block";
-        document.getElementById("tytul").disabled = true;
-        document.getElementById("tresc").disabled = true;
-        document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = true;
-    } else {
-        newSubjectDiv.style.display = "none";
-        document.getElementById("tytul").disabled = false;
-        document.getElementById("tresc").disabled = false;
-        document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = false;
-    }
-});
-</script>
+    document.getElementById("przedmiot").addEventListener("change", function() {
+        var selectedOption = this.value;
+        var newSubjectDiv = document.getElementById("nowy_przedmiot_div");
+        var usunPrzedmiotDiv = document.getElementById("usun_przedmiot_div");
+    
+        if (selectedOption === "nowy_przedmiot") {
+            newSubjectDiv.style.display = "block";
+            document.getElementById("tytul").disabled = true;
+            document.getElementById("tresc").disabled = true;
+            document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = true;
+            usunPrzedmiotDiv.style.display = "none";
+        } else if (selectedOption === "usun_przedmiot") {
+            usunPrzedmiotDiv.style.display = "block";
+            document.getElementById("tytul").disabled = true;
+            document.getElementById("tresc").disabled = true;
+            document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = true;
+            newSubjectDiv.style.display = "none";
+        } else {
+            newSubjectDiv.style.display = "none";
+            usunPrzedmiotDiv.style.display = "none";
+            document.getElementById("tytul").disabled = false;
+            document.getElementById("tresc").disabled = false;
+            document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = false;
+        }
+
+        document.querySelector('button[name="action"][value="usun_przedmiot"]').addEventListener("click", function(event) {
+        var confirmDelete = confirm("Czy na pewno chcesz usunąć ten przedmiot?");
+        if (!confirmDelete) {
+            event.preventDefault(); 
+        }
+    });
+    });
+    </script>
+    
 
 {% endblock content %}

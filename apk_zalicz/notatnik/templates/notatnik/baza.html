@@ -23,9 +23,9 @@
                 <h2>Twoje notatki</h2>
                 <ul class="list-group" id="notes-list">
                     {% for notatka in notatki %}    
-                        <li class="list-group-item" data-przedmiot="{{ notatka.przedmiot.id }}" data-tytul="{{ notatka.tytul }}" data-tresc="{{ notatka.tresc }}" data-data_utworzenia="{{ notatka.data_utworzenia }}">
+                        <li class="list-group-item" data-note="{{ notatka.id }}" data-przedmiot="{{ notatka.przedmiot.id }}" data-tytul="{{ notatka.tytul }}" data-tresc="{{ notatka.tresc }}" data-data_utworzenia="{{ notatka.data_utworzenia }}">
                             <div class="note-info">
-                                <span>{{ notatka.przedmiot.nazwa }}:</span>
+                                <span><b>{{ notatka.przedmiot.nazwa }}:</b></span>
                                 <span class="note-title">{{ notatka.tytul }}</span>
                                 <p class="note-date">{{ notatka.data_utworzenia }}</p>
                             </div>   
@@ -100,9 +100,95 @@
                         modal.style.display = 'none';
                         modalOverlay.style.display = 'none';
                     };
+
+                    
+                });
+
+                // Dodajemy obsługę zdarzenia kliknięcia w przycisk usuwania notatki
+                var deleteButton = item.querySelector('button.btn-danger');
+                deleteButton.addEventListener('click', function(event) {
+                    var confirmDelete = confirm("Czy na pewno chcesz usunąć tę notatkę?");
+                    if (!confirmDelete) {
+                        event.stopPropagation();
+                        event.preventDefault(); // Zatrzymaj domyślne zachowanie (tj. wysłanie formularza)
+                    }
+                    else{
+                        event.stopPropagation();
+                    }
                 });
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    var listItems = document.querySelectorAll('.list-group-item');
+    listItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            var modal = document.getElementById('modal');
+            var modalOverlay = document.getElementById('modal-overlay');
+            var modalTitle = document.getElementById('modal-title');
+            var modalContent = document.getElementById('modal-content');
+            var modalDate = document.getElementById('modal-date');
+
+            var noteTitle = this.getAttribute('data-tytul');
+            var noteContent = this.getAttribute('data-tresc');
+            var noteDate = this.getAttribute('data-data_utworzenia');
+            var noteId = this.getAttribute('data-note'); // Poprawka: zmiana 'data-note_id' na 'data-przedmiot'
+            console.log("Note ID:", noteId);
+
+            modalTitle.textContent = "Temat: " + noteTitle;
+            modalContent.innerHTML = ""; // Czyścimy zawartość modala
+
+            // Dodajemy treść notatki
+            var noteContentElement = document.createElement('p');
+            noteContentElement.textContent = noteContent;
+            modalContent.appendChild(noteContentElement);
+
+            // Dodajemy przycisk "Edytuj notatkę"
+            var editButton = document.createElement('button');
+            editButton.textContent = "Edytuj notatkę";
+            editButton.classList.add('btn', 'btn-primary', 'mb-2');
+            editButton.onclick = function() {
+                // Po kliknięciu na przycisk "Edytuj notatkę" pokazujemy formularz edycji
+                editForm.style.display = 'block';
+                noteContentElement.style.display = 'none';
+                editButton.style.display = 'none';
+            };
+            modalContent.appendChild(editButton);
+
+            // Dodajemy formularz edycji notatki
+            var editForm = document.createElement('form');
+            editForm.style.display = 'none'; // Ukrywamy formularz początkowo
+            editForm.setAttribute('method', 'post');
+            editForm.style.marginTop = '20px';
+
+            var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            editForm.innerHTML = `
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                <input type="hidden" name="action" value="edytuj_notatke">
+                <input type="hidden" name="note_id" value="${noteId}"> 
+                <div class="form-group">
+                    <label for="edited-content">Edytuj treść notatki:</label>
+                    <textarea class="form-control" id="edited-content" name="edited_content" rows="12">${noteContent}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+            `;
+            modalContent.appendChild(editForm);
+
+            modalDate.textContent = "Data utworzenia: " + noteDate;
+
+            modal.style.display = 'block';
+            modalOverlay.style.display = 'block';
+
+            var closeButton = document.getElementById('close-button');
+            closeButton.onclick = function() {
+                modal.style.display = 'none';
+                modalOverlay.style.display = 'none';
+            };
+        });
+    });
+});
+
+
     </script>
 </div>
 
@@ -140,6 +226,7 @@
         word-wrap: break-word;
         margin-top: 30px;
         overflow-y: auto;
+        padding: 20px;
     }
 
     .close-button {
@@ -157,6 +244,7 @@
         overflow: hidden; /* Ukrywa nadmiarowy tekst */
         text-overflow: ellipsis; /* Dodaje "..." na końcu obciętego tekstu */
         cursor: pointer; /* Dodaje kursor wskazujący, aby pokazać, że element jest interaktywny */
+        word-wrap: break-word;
     }
 
 </style>
