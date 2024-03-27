@@ -5,6 +5,16 @@
     <div class="row">
         <div class="col-md-6 offset-md-3">
             <h2>Dodaj notatkę:</h2>
+            {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+            {% endif %}
+            {% if message %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
             <form method="post">
                 {% csrf_token %}
                 <div class="form-group">
@@ -21,12 +31,12 @@
                 
                 <div id="nowy_przedmiot_div" class="form-group" style="display: none;">
                     <label for="new-subject">Nowy przedmiot:</label>
-                    <input type="text" class="form-control" id="new-subject" name="new-subject" placeholder="Wprowadź nazwę nowego przedmiotu">
+                    <input type="text" class="form-control" id="new-subject" name="new-subject" placeholder="Wprowadź nazwę nowego przedmiotu" maxlength="100" required>
                     <button style="margin-top: 15px;" type="submit" class="btn btn-primary" name="action" value="nowy_przedmiot">Dodaj nowy przedmiot</button>
                 </div>
                 <div id="usun_przedmiot_div" class="form-group" style="display: none;">
                     <label for="przedmiot_usun">Wybierz przedmiot do usunięcia:</label>
-                    <select class="form-control" id="przedmiot_usun" name="przedmiot_usun">
+                    <select class="form-control" id="przedmiot_usun" name="przedmiot_usun" required>
                         <option value="" selected disabled>Wybierz przedmiot do usunięcia</option>
                         {% for przedmiot in przedmioty %}
                             <option value="{{ przedmiot.id }}">{{ przedmiot.nazwa }}</option>
@@ -36,7 +46,7 @@
                 </div>
                 <div class="form-group">
                     <label for="tytul">Temat lekcji:</label>
-                    <input type="text" class="form-control" id="tytul" name="tytul" placeholder="Wprowadź temat lekcji" required>
+                    <input type="text" class="form-control" id="tytul" name="tytul" placeholder="Wprowadź temat lekcji" maxlength="200" required>
                 </div>
                 <div class="form-group">
                     <label for="tresc">Treść notatki:</label>
@@ -49,6 +59,7 @@
 </div>
 
 <script>
+    // Obsługa dezaktywacji pól formularza
     document.getElementById("przedmiot").addEventListener("change", function() {
         var selectedOption = this.value;
         var newSubjectDiv = document.getElementById("nowy_przedmiot_div");
@@ -58,29 +69,27 @@
             newSubjectDiv.style.display = "block";
             document.getElementById("tytul").disabled = true;
             document.getElementById("tresc").disabled = true;
-            document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = true;
+            document.getElementById("przedmiot_usun").required = false;
+            usunPrzedmiotDiv.disabled = true;
             usunPrzedmiotDiv.style.display = "none";
         } else if (selectedOption === "usun_przedmiot") {
             usunPrzedmiotDiv.style.display = "block";
             document.getElementById("tytul").disabled = true;
             document.getElementById("tresc").disabled = true;
             document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = true;
+            document.getElementById("new-subject").required = false;
             newSubjectDiv.style.display = "none";
         } else {
             newSubjectDiv.style.display = "none";
             usunPrzedmiotDiv.style.display = "none";
             document.getElementById("tytul").disabled = false;
             document.getElementById("tresc").disabled = false;
+            document.getElementById("przedmiot_usun").required = false;
+            document.getElementById("new-subject").required = false;
             document.querySelector('button[name="action"][value="zapisz_notatke"]').disabled = false;
         }
-
-        document.querySelector('button[name="action"][value="usun_przedmiot"]').addEventListener("click", function(event) {
-        var confirmDelete = confirm("Czy na pewno chcesz usunąć ten przedmiot?");
-        if (!confirmDelete) {
-            event.preventDefault(); 
-        }
     });
-    });
+    
     </script>
     
 
